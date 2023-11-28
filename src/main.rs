@@ -5,7 +5,7 @@ use std::time::Duration;
 use chrono::{Local, Utc};
 use env_logger::fmt::Color;
 use ethers::prelude::*;
-use futures::TryStreamExt;
+use futures_util::TryStreamExt;
 use log::{debug, error, info, LevelFilter};
 use once_cell::sync::{Lazy, OnceCell};
 use postgres_types::ToSql;
