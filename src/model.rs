@@ -1,5 +1,6 @@
 use std::error::Error;
-use std::fmt::{Display, Formatter};
+use std::fmt::Display;
+use std::str::FromStr;
 
 use chrono::{DateTime, Utc};
 use duplicate::duplicate_item;
@@ -8,70 +9,36 @@ use postgres_types::private::BytesMut;
 use postgres_types::{to_sql_checked, FromSql, IsNull, ToSql, Type};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, strum::Display, strum::EnumString)]
 pub enum TokenCode {
+    #[strum(serialize = "a")]
     A,
+    #[strum(serialize = "b")]
     B,
+    #[strum(serialize = "c")]
     C,
+    #[strum(serialize = "d")]
     D,
+    #[strum(serialize = "e")]
     E,
 }
 
-impl Display for TokenCode {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::A => write!(f, "A"),
-            Self::B => write!(f, "B"),
-            Self::C => write!(f, "C"),
-            Self::D => write!(f, "D"),
-            Self::E => write!(f, "E"),
-        }
-    }
-}
-
-impl FromSql<'_> for TokenCode {
-    fn from_sql(_ty: &Type, raw: &[u8]) -> Result<Self, Box<dyn Error + Sync + Send>> {
-        match raw {
-            b"A" => Ok(Self::A),
-            b"B" => Ok(Self::B),
-            b"C" => Ok(Self::C),
-            b"D" => Ok(Self::D),
-            _ => Ok(Self::E),
-        }
-    }
-
-    fn accepts(_ty: &Type) -> bool {
-        true
-    }
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, strum::Display, strum::EnumString)]
 pub enum StatusChoice {
+    #[strum(serialize = "pending")]
     Pending,
+    #[strum(serialize = "success")]
     Success,
+    #[strum(serialize = "fail")]
     Fail,
+    #[strum(serialize = "timeout")]
     Timeout,
 }
 
-impl Display for StatusChoice {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Pending => write!(f, "pending"),
-            Self::Success => write!(f, "success"),
-            Self::Fail => write!(f, "fail"),
-            Self::Timeout => write!(f, "timeout"),
-        }
-    }
-}
-
-impl FromSql<'_> for StatusChoice {
+#[duplicate_item(type_name;[TokenCode];[StatusChoice])]
+impl FromSql<'_> for type_name {
     fn from_sql(_ty: &Type, raw: &[u8]) -> Result<Self, Box<dyn Error + Sync + Send>> {
-        match raw {
-            b"pending" => Ok(Self::Pending),
-            b"success" => Ok(Self::Success),
-            b"fail" => Ok(Self::Fail),
-            _ => Ok(Self::Timeout),
-        }
+        Self::from_str(std::str::from_utf8(raw)?).map_err(|e| e.into())
     }
 
     fn accepts(_ty: &Type) -> bool {
@@ -100,23 +67,23 @@ impl ToSql for type_name {
 
 #[derive(Clone, Debug, Deserialize, Serialize, FromRow)]
 pub struct Transaction {
-    pub id: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
-    pub status: StatusChoice,
-    pub from_user_id: String,
-    pub to_user_id: String,
-    pub order_id: String,
-    pub point: i64,
-    pub coin_code: TokenCode,
-    pub ext_json: Option<String>,
-    pub gen_time: i64,
-    pub tx_hash: Option<String>,
-    pub tag_id: String,
-    pub fail_reason: Option<String>,
-    pub status_code: i32,
-    pub store_id: Option<String>,
-    pub block_number: i64,
     pub success_time: Option<DateTime<Utc>>,
     pub request_time: Option<DateTime<Utc>>,
+    pub status: StatusChoice,
+    pub status_code: i32,
+    pub block_number: Option<i64>,
+    pub fail_reason: Option<String>,
+    pub nonce: Option<i64>,
+    pub gas: Option<i64>,
+    pub tx_hash: Option<String>,
+    pub from_user_id: String,
+    pub to_user_id: String,
+    pub point: f64,
+    pub tag_id: String,
+    pub coin_code: String,
+    pub ext_json: String,
+    pub gen_time: String,
+    pub store_id: Option<String>,
 }

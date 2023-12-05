@@ -28,7 +28,7 @@ postgres-types = { version = "0.2.6", features = ["derive"]}
 
 pulsar = "6.1.0"
 ethers = { version = "2.0.11", features = ["legacy"] }
-
+strum = { version = "0.25", features = ["derive"] }
 duplicate = "1.0.0"
 uint = "0.9.5"
 rustc-hex = "2.1.0"
