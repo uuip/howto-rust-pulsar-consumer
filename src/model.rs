@@ -10,28 +10,22 @@ use postgres_types::{to_sql_checked, FromSql, IsNull, ToSql, Type};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize, strum::Display, strum::EnumString)]
+#[strum(serialize_all = "lowercase")]
 pub enum TokenCode {
-    #[strum(serialize = "a")]
     A,
-    #[strum(serialize = "b")]
     B,
-    #[strum(serialize = "c")]
     C,
-    #[strum(serialize = "d")]
     D,
-    #[strum(serialize = "e")]
     E,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, strum::Display, strum::EnumString)]
+#[strum(serialize_all = "lowercase")]
 pub enum StatusChoice {
-    #[strum(serialize = "pending")]
     Pending,
-    #[strum(serialize = "success")]
     Success,
-    #[strum(serialize = "fail")]
     Fail,
-    #[strum(serialize = "timeout")]
+    // #[strum(serialize = "timeout")]
     Timeout,
 }
 
