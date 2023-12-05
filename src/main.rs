@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::io::Write;
 use std::sync::Arc;
 use std::time::Duration;
@@ -84,44 +85,31 @@ async fn main() -> anyhow::Result<()> {
                     Ok(data) => data,
                     Err(e) => {
                         error!("could not deserialize message: {:?}", e);
-                        consumer
-                            .nack(&msg)
-                            .await
-                            .unwrap_or_else(|e| error!("can't ack msg {e}"));
+                        consumer.nack(&msg).await?;
                         continue;
                     }
                 };
                 let rst = persist_one(&s_pool, &data).await;
                 match rst {
                     Ok(_) => {
-                        consumer
-                            .ack(&msg)
-                            .await
-                            .unwrap_or_else(|e| error!("can't ack msg {e}"));
+                        consumer.ack(&msg).await?;
                     }
                     Err(e) => {
                         error!("could not persist message:{e}; {data:?}");
                         if e.to_string()
                             .contains("duplicate key value violates unique constraint")
                         {
-                            consumer
-                                .ack(&msg)
-                                .await
-                                .unwrap_or_else(|e| error!("can't ack msg {e}"));
+                            consumer.ack(&msg).await?;
                         } else {
-                            consumer
-                                .nack(&msg)
-                                .await
-                                .unwrap_or_else(|e| error!("can't ack msg {e}"));
+                            consumer.nack(&msg).await?;
                             continue;
                         }
                     }
                 }
-                s.send(data)
-                    .await
-                    .unwrap_or_else(|e| panic!("send channel msg error {e:?}"));
+                s.send(data).await?;
             }
         }
+        Ok::<(), Box<dyn Error + Sync + Send>>(())
     });
     for i in 0..SETTING.batch_size {
         let r = r.clone();
