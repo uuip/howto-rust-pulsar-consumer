@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::io::Write;
 use std::sync::Arc;
 use std::time::Duration;
@@ -109,7 +108,7 @@ async fn main() -> anyhow::Result<()> {
                 s.send(data).await?;
             }
         }
-        Ok::<(), Box<dyn Error + Sync + Send>>(())
+        Ok::<(), anyhow::Error>(())
     });
     for i in 0..SETTING.batch_size {
         let r = r.clone();
