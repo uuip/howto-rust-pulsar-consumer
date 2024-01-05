@@ -8,7 +8,7 @@ use ethers::prelude::*;
 use futures_util::TryStreamExt;
 use log::{debug, error, info, LevelFilter};
 use once_cell::sync::{Lazy, OnceCell};
-use postgres_types::ToSql;
+use tokio_postgres::types::ToSql;
 use pulsar::{Consumer, Pulsar, SubType, TokioExecutor};
 use reqwest::Url;
 

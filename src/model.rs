@@ -5,8 +5,8 @@ use std::str::FromStr;
 use chrono::{DateTime, Utc};
 use duplicate::duplicate_item;
 use postgres_from_row::FromRow;
-use postgres_types::private::BytesMut;
-use postgres_types::{to_sql_checked, FromSql, IsNull, ToSql, Type};
+use tokio_postgres::types::private::BytesMut;
+use tokio_postgres::types::{to_sql_checked, FromSql, IsNull, ToSql, Type};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize, strum::Display, strum::EnumString)]
